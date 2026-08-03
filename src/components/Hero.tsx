@@ -157,7 +157,7 @@ export const Hero: React.FC<Props> = ({ profile, customCV, onDownloadCV }) => {
                 <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-[#141414]/90 border border-white/15 px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg flex items-center gap-2 z-20">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[11px] font-bold text-white tracking-wide">
-                    Available for Hire
+                    Available for Projects
                   </span>
                 </div>
               </div>
