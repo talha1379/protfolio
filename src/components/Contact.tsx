@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase } from "../services/supabase";
 import React, { useState } from "react";
 import { SectionHeading } from "./SectionHeading";
 import { ProfileData } from "../types";
