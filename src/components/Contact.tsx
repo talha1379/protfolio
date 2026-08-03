@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
-import { SectionHeading } from './SectionHeading';
-import { ProfileData } from '../types';
-import { Mail, Phone, MapPin, Github, Linkedin, Send, CheckCircle2, AlertCircle, Loader2, MessageSquare } from 'lucide-react';
+import { supabase } from "../lib/supabase";
+import React, { useState } from "react";
+import { SectionHeading } from "./SectionHeading";
+import { ProfileData } from "../types";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Github,
+  Linkedin,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  MessageSquare,
+} from "lucide-react";
 
 interface Props {
   profile: ProfileData;
 }
 
 export const Contact: React.FC<Props> = ({ profile }) => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -20,48 +32,72 @@ export const Contact: React.FC<Props> = ({ profile }) => {
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!fullName.trim()) {
-      newErrors.fullName = 'Full Name is required.';
+      newErrors.fullName = "Full Name is required.";
     }
     if (!email.trim()) {
-      newErrors.email = 'Email address is required.';
+      newErrors.email = "Email address is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email address.';
+      newErrors.email = "Please enter a valid email address.";
     }
     if (!subject.trim()) {
-      newErrors.subject = 'Subject is required.';
+      newErrors.subject = "Subject is required.";
     }
     if (!message.trim()) {
-      newErrors.message = 'Message content is required.';
+      newErrors.message = "Message content is required.";
     } else if (message.trim().length < 10) {
-      newErrors.message = 'Message must be at least 10 characters long.';
+      newErrors.message = "Message must be at least 10 characters long.";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validate()) return;
 
     setIsSubmitting(true);
 
-    // Simulate demo network submission flow
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const submittedName = fullName;
+
+    try {
+      const { error } = await supabase.from("contact_messages").insert([
+        {
+          full_name: fullName,
+          email: email,
+          subject: subject,
+          message: message,
+        },
+      ]);
+
+      if (error) {
+        throw error;
+      }
+
       setSubmitted(true);
-      setFullName('');
-      setEmail('');
-      setSubject('');
-      setMessage('');
+      setFullName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
       setErrors({});
-    }, 1200);
+    } catch (error) {
+      console.error("Contact message error:", error);
+
+      setErrors({
+        form: "Message could not be sent. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <section id="contact" className="py-20 bg-[#0A0A0A] relative border-t border-b border-white/5">
+    <section
+      id="contact"
+      className="py-20 bg-[#0A0A0A] relative border-t border-b border-white/5"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         <SectionHeading
           badge="Get in Touch"
           title="Contact & Collaboration"
@@ -69,10 +105,8 @@ export const Contact: React.FC<Props> = ({ profile }) => {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
           {/* Left Column: Direct Contact Info (5 cols on lg) */}
           <div className="lg:col-span-5 space-y-6">
-            
             <div className="bg-[#141414] rounded-2xl p-6 sm:p-8 border border-white/5 shadow-xl space-y-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-blue-500" />
@@ -80,17 +114,18 @@ export const Contact: React.FC<Props> = ({ profile }) => {
               </h3>
 
               <div className="space-y-3.5 text-sm">
-                
                 {/* Phone */}
                 <a
-                  href={`tel:${profile.phone.replace(/[^0-9+]/g, '')}`}
+                  href={`tel:${profile.phone.replace(/[^0-9+]/g, "")}`}
                   className="p-3.5 rounded-xl bg-black border border-white/10 flex items-center gap-3.5 hover:border-blue-500/40 transition-colors group"
                 >
                   <div className="w-9 h-9 rounded-lg bg-blue-900/20 text-blue-500 flex items-center justify-center shrink-0 border border-blue-500/20">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block uppercase font-medium">Phone</span>
+                    <span className="text-[10px] text-slate-400 block uppercase font-medium">
+                      Phone
+                    </span>
                     <span className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors text-xs sm:text-sm">
                       {profile.phone}
                     </span>
@@ -106,7 +141,9 @@ export const Contact: React.FC<Props> = ({ profile }) => {
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="overflow-hidden">
-                    <span className="text-[10px] text-slate-400 block uppercase font-medium">Email</span>
+                    <span className="text-[10px] text-slate-400 block uppercase font-medium">
+                      Email
+                    </span>
                     <span className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors truncate block text-xs sm:text-sm">
                       {profile.email}
                     </span>
@@ -119,18 +156,21 @@ export const Contact: React.FC<Props> = ({ profile }) => {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block uppercase font-medium">Location</span>
+                    <span className="text-[10px] text-slate-400 block uppercase font-medium">
+                      Location
+                    </span>
                     <span className="font-semibold text-slate-200 text-xs sm:text-sm">
                       {profile.location}
                     </span>
                   </div>
                 </div>
-
               </div>
 
               {/* Social Profiles */}
               <div className="pt-5 border-t border-white/5">
-                <span className="text-xs text-slate-400 block mb-3 font-medium">Professional Profiles</span>
+                <span className="text-xs text-slate-400 block mb-3 font-medium">
+                  Professional Profiles
+                </span>
                 <div className="grid grid-cols-2 gap-3">
                   <a
                     href={profile.github}
@@ -153,14 +193,11 @@ export const Contact: React.FC<Props> = ({ profile }) => {
                   </a>
                 </div>
               </div>
-
             </div>
-
           </div>
 
           {/* Right Column: Interactive Contact Form (7 cols on lg) */}
           <div className="lg:col-span-7 bg-[#141414] rounded-2xl p-6 sm:p-8 border border-white/5 shadow-xl">
-            
             <h3 className="text-xl font-bold text-white mb-2">
               Send a Message
             </h3>
@@ -173,9 +210,13 @@ export const Contact: React.FC<Props> = ({ profile }) => {
                 <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h4 className="text-lg font-bold text-white">Message Sent Successfully!</h4>
+                <h4 className="text-lg font-bold text-white">
+                  Message Sent Successfully!
+                </h4>
                 <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                  Thank you for reaching out, {fullName || 'there'}! Your message has been received. I will get back to you shortly at your provided email address.
+                  Thank you for reaching out, {fullName || "there"}! Your
+                  message has been received. I will get back to you shortly at
+                  your provided email address.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
@@ -186,7 +227,6 @@ export const Contact: React.FC<Props> = ({ profile }) => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                
                 {/* Full Name & Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -288,16 +328,13 @@ export const Contact: React.FC<Props> = ({ profile }) => {
                 </button>
 
                 <p className="text-[10px] text-slate-500 text-center pt-1">
-                  Integrated with demo validation. Formspree / EmailJS hook ready.
+                  Integrated with demo validation. Formspree / EmailJS hook
+                  ready.
                 </p>
-
               </form>
             )}
-
           </div>
-
         </div>
-
       </div>
     </section>
   );
