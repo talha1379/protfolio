@@ -59,6 +59,9 @@ export const Contact: React.FC<Props> = ({ profile }) => {
 
     setIsSubmitting(true);
 
+    console.log("Supabase Config:", isSupabaseConfigured);
+    console.log("Supabase Client:", supabase);
+
     if (!isSupabaseConfigured || !supabase) {
       setErrors({
         form: "Supabase is not configured. Please check Vercel environment variables.",
