@@ -89,11 +89,11 @@ export const Contact: React.FC<Props> = ({ profile }) => {
       setSubject("");
       setMessage("");
       setErrors({});
-    } catch (error) {
-      console.error("Contact message error:", error);
+    } catch (error: any) {
+      console.error("Contact message error:", error.message, error);
 
       setErrors({
-        form: "Message could not be sent. Please try again.",
+        form: error.message || "Message could not be sent.",
       });
     } finally {
       setIsSubmitting(false);
