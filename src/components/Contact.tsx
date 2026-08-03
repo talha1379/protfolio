@@ -1,4 +1,4 @@
-import { supabase } from "../services/supabase";
+import { supabase, isSupabaseConfigured } from "../services/supabase";
 import React, { useState } from "react";
 import { SectionHeading } from "./SectionHeading";
 import { ProfileData } from "../types";
@@ -58,6 +58,14 @@ export const Contact: React.FC<Props> = ({ profile }) => {
     if (!validate()) return;
 
     setIsSubmitting(true);
+
+    if (!isSupabaseConfigured || !supabase) {
+      setErrors({
+        form: "Supabase is not configured. Please check Vercel environment variables.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     const submittedName = fullName;
 
@@ -227,6 +235,12 @@ export const Contact: React.FC<Props> = ({ profile }) => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {errors.form && (
+                  <p className="text-xs text-rose-400 text-center">
+                    {errors.form}
+                  </p>
+                )}
+
                 {/* Full Name & Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
